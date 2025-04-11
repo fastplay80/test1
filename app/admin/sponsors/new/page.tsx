@@ -194,7 +194,7 @@ export default function NewSponsorPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
               <div className="mt-1 flex items-center">
                 <div
-                  className="relative flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg p-6 w-full cursor-pointer hover:bg-gray-50"
+                  className="relative flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg p-6 w-full cursor-pointer hover:bg-gray-50"    
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {logoPreview ? (
@@ -318,4 +318,3 @@ export default function NewSponsorPage() {
     </div>
   )
 }
-
