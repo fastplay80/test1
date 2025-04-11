@@ -1,4 +1,3 @@
-
 "use client"
 
 import type React from "react"
@@ -87,107 +86,29 @@ export default function NewSponsorPage() {
 
       const order = orderStr ? Number.parseInt(orderStr, 10) : undefined
 
-      // Se c'è un file logo, prova a caricarlo
+      // IMPORTANTE: Saltiamo completamente la parte di upload del logo
+      // e salviamo lo sponsor senza logo
+      
+      // Mostra un avviso che il logo non verrà caricato
       if (logoFile) {
-        try {
-          // Prepara i dati per l'upload
-          const uploadData = new FormData()
-          uploadData.append("file", logoFile)
-          uploadData.append("path", `sponsors/${id}`)
+        console.warn("L'upload del logo non è supportato in questo ambiente. Lo sponsor verrà salvato senza logo.");
+      }
+      
+      // Salva lo sponsor senza logo
+      const result = await saveSponsor({
+        id,
+        name,
+        description: description || undefined,
+        website: website || undefined,
+        category: category as any,
+        order,
+      })
 
-          // Upload del logo
-          const uploadResponse = await fetch("/api/upload", {
-            method: "POST",
-            body: uploadData,
-          })
-
-          if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json()
-            console.error("Errore durante l'upload del logo:", errorData)
-            
-            // Mostra un avviso ma continua con il salvataggio senza logo
-            console.warn("Impossibile caricare il logo. Lo sponsor verrà salvato senza logo.");
-            
-            // Salva lo sponsor senza logo
-            const result = await saveSponsor({
-              id,
-              name,
-              // Non includiamo il logo
-              description: description || undefined,
-              website: website || undefined,
-              category: category as any,
-              order,
-            })
-
-            if (result.success) {
-              router.push("/admin/sponsors")
-              router.refresh()
-            } else {
-              setError(result.message)
-            }
-            return
-          }
-
-          const uploadResult = await uploadResponse.json()
-
-          // Salva lo sponsor con il percorso del logo caricato
-          const result = await saveSponsor({
-            id,
-            name,
-            logo: uploadResult.path,
-            description: description || undefined,
-            website: website || undefined,
-            category: category as any,
-            order,
-          })
-
-          if (result.success) {
-            router.push("/admin/sponsors")
-            router.refresh()
-          } else {
-            setError(result.message)
-          }
-        } catch (uploadError) {
-          console.error("Errore durante l'upload:", uploadError)
-          
-          // Mostra un avviso ma continua con il salvataggio senza logo
-          console.warn("Impossibile caricare il logo a causa di un errore. Lo sponsor verrà salvato senza logo.");
-          
-          // Salva lo sponsor senza logo
-          const result = await saveSponsor({
-            id,
-            name,
-            // Non includiamo il logo
-            description: description || undefined,
-            website: website || undefined,
-            category: category as any,
-            order,
-          })
-
-          if (result.success) {
-            router.push("/admin/sponsors")
-            router.refresh()
-          } else {
-            setError(result.message)
-          }
-        }
+      if (result.success) {
+        router.push("/admin/sponsors")
+        router.refresh()
       } else {
-        // Salva lo sponsor senza logo
-        const result = await saveSponsor({
-          id,
-          name,
-          description: description || undefined,
-          website: website || undefined,
-          category: category as any,
-          order,
-        })
-
-        if (result.success) {
-          router.push("/admin/sponsors")
-          router.refresh()
-        } else {
-          setError(result.message)
-        }
+        setError(result.message)
       }
     } catch (err) {
       console.error(err)
@@ -215,6 +136,11 @@ export default function NewSponsorPage() {
           <h1 className="text-2xl font-bold mb-6">Nuovo Sponsor</h1>
 
           {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+          
+          {/* Avviso che l'upload del logo non è supportato */}
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+            <p><strong>Nota:</strong> L'upload del logo non è attualmente supportato. Gli sponsor verranno salvati senza logo.</p>
+          </div>
 
           <form action={handleSubmit} className="space-y-4">
             <div>
@@ -248,6 +174,8 @@ export default function NewSponsorPage() {
               />
             </div>
 
+            {/* Nascondiamo completamente la sezione di upload del logo */}
+            {/* 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
               <div className="mt-1 flex items-center">
@@ -297,6 +225,7 @@ export default function NewSponsorPage() {
                 </div>
               </div>
             </div>
+            */}
 
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
